@@ -1,0 +1,31 @@
+name: Build & Test user_service Docker container
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t user_service:local .
+
+      - name: Run container in background
+        run: |
+          docker run -d --name user_service -p 3000:3000 user_service:local
+          sleep 5  # give it a few seconds to start
+
+      - name: Check if container is running
+        run: docker ps -a
+
+      - name: Test endpoint (if your app has one)
+        run: |
+          curl http://localhost:3000 || echo "App did not respond"

@@ -1,0 +1,37 @@
+name: CI - User Service
+
+on:
+  push:
+    branches: [main]         
+  pull_request:
+    branches: [main]          
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest    
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run server and tests
+        run: |
+          # Start server in background
+          nohup node server.js &
+
+          # Wait a few seconds for server to be ready
+          sleep 5
+
+          # Optional sanity check
+          curl -f http://localhost:3000/health
+
+          # Run your test script
+          node test.js
